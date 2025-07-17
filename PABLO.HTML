@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            text-align: center;
+        }
+        header {
+            background: #333;
+            color: white;
+            padding: 10px 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="tel"], input[type="password"], textarea {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .client {
+            background: white;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .button {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .menu-section {
+            display: none;
+            margin-top: 20px;
+        }
+        .search-container {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .client-list {
+            text-align: left;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Gestión de Clientes</h1>
+</header>
+
+<div class="container">
+    <div class="login-section" id="login-section">
+        <h2>Iniciar Sesión</h2>
+        <input type="text" id="username" placeholder="Usuario" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button class="button" onclick="login()">Iniciar Sesión</button>
+    </div>
+
+    <!-- MENÚ CON IMÁGENES -->
+    <div class="menu-section" id="menu-section">
+        <h2>Menú</h2>
+        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 20px;">
+            <div style="text-align: center;">
+                <img src="IMAGEN1.png" alt="Registrar" style="width: 60px; height: auto;"><br>
+                <button class="button" onclick="showSection('register')">Registrar</button>
+            </div>
+            <div style="text-align: center;">
+                <img src="IMAGEN2.png" alt="Buscar" style="width: 60px; height: auto;"><br>
+                <button class="button" onclick="showSection('search')">Buscar</button>
+            </div>
+            <div style="text-align: center;">
+                <img src="IMAGEN3.png" alt="Editar" style="width: 60px; height: auto;"><br>
+                <button class="button" onclick="showSection('edit')">Editar</button>
+            </div>
+            <div style="text-align: center;">
+                <img src="IMAGEN3.png" alt="Borrar" style="width: 60px; height: auto;"><br>
+                <button class="button" onclick="showSection('delete')">Borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="client-section" id="client-section" style="display: none;">
+        <div class="form-section" id="register-section" style="display: none;">
+            <h2>Registrar Cliente</h2>
+            <input type="text" id="client-name" placeholder="Nombre" required><br>
+            <input type="tel" id="client-phone" placeholder="Teléfono" required><br>
+            <input type="text" id="client-relationship" placeholder="Relación" required><br>
+            <textarea id="client-notes" placeholder="Notas importantes..."></textarea><br>
+            <button class="button" onclick="addClient()">Guardar Cliente</button>
+        </div>
+
+        <div class="form-section" id="search-section" style="display: none;">
+            <h2>Buscar Cliente</h2>
+            <input type="text" id="search-client-name" placeholder="Nombre del cliente" oninput="searchClients()">
+            <div id="search-results" class="client-list"></div>
+        </div>
+
+        <div class="form-section" id="edit-section" style="display: none;">
+            <h2>Editar Cliente</h2>
+            <div id="edit-client-list" class="client-list"></div>
+            <h3>Información del Cliente</h3>
+            <input type="text" id="edit-client-name" placeholder="Nombre" required style="display: none;">
+            <input type="tel" id="edit-client-phone" placeholder="Teléfono" required style="display: none;">
+            <input type="text" id="edit-client-relationship" placeholder="Relación" required style="display: none;">
+            <textarea id="edit-client-notes" placeholder="Notas..." style="display: none;"></textarea><br>
+            <button class="button" onclick="updateClient()" style="display: none;">Actualizar Cliente</button>
+        </div>
+
+        <div class="form-section" id="delete-section" style="display: none;">
+            <h2>Borrar Cliente</h2>
+            <div id="delete-client-list" class="client-list"></div>
+            <button class="button" onclick="deleteClient()">Borrar Cliente</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let clients = [
+        { name: 'Juan Pérez', phone: '555-1234', relationship: 'Cliente recurrente', notes: 'Prefiere contacto por teléfono.' },
+        { name: 'María López', phone: '555-5678', relationship: 'Potencial', notes: 'Interesada en productos ecológicos.' },
+        { name: 'Carlos Sánchez', phone: '555-8765', relationship: 'Proveedor', notes: 'Envía reportes mensuales.' },
+        { name: 'Ana García', phone: '555-4321', relationship: 'Cliente habitual', notes: 'Solicita descuentos.' }
+    ];
+    let currentClientIndex = null;
+
+    function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (username === 'PABLO' && password === '123') {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('menu-section').style.display = 'block';
+            document.getElementById('client-section').style.display = 'block';
+        } else {
+            alert('Usuario o contraseña incorrectos.');
+        }
+    }
+
+    function showSection(section) {
+        document.getElementById('register-section').style.display = 'none';
+        document.getElementById('search-section').style.display = 'none';
+        document.getElementById('edit-section').style.display = 'none';
+        document.getElementById('delete-section').style.display = 'none';
+
+        document.getElementById(section + '-section').style.display = 'block';
+
+        if (section === 'edit') {
+            displayEditClients();
+        } else if (section === 'delete') {
+            displayDeleteClients();
+        }
+    }
+
+    function addClient() {
+        const name = document.getElementById('client-name').value.trim();
+        const phone = document.getElementById('client-phone').value.trim();
+        const relationship = document.getElementById('client-relationship').value.trim();
+        const notes = document.getElementById('client-notes').value.trim();
+
+        if (name && phone && relationship) {
+            clients.push({ name, phone, relationship, notes });
+            resetForm('register');
+            alert('Cliente agregado.');
+        } else {
+            alert('Por favor, completa todos los campos requeridos.');
+        }
+    }
+
+    function searchClients() {
+        const searchValue = document.getElementById('search-client-name').value.toLowerCase();
+        const filteredClients = clients.filter(client => client.name.toLowerCase().includes(searchValue));
+        
+        const searchResultsDiv = document.getElementById('search-results');
+        searchResultsDiv.innerHTML = '';
+        filteredClients.forEach(client => {
+            const clientDiv = document.createElement('div');
+            clientDiv.className = 'client';
+            clientDiv.innerHTML = `<strong>${client.name}</strong> - ${client.phone}`;
+            searchResultsDiv.appendChild(clientDiv);
+        });
+    }
+
+    function displayEditClients() {
+        const editClientListDiv = document.getElementById('edit-client-list');
+        editClientListDiv.innerHTML = '';
+        clients.forEach((client, index) => {
+            const clientDiv = document.createElement('div');
+            clientDiv.className = 'client';
+            clientDiv.innerHTML = `
+                <input type="radio" name="edit-client" value="${index}" onchange="populateEditFields(${index})">
+                <strong>${client.name}</strong> - ${client.phone}
+            `;
+            editClientListDiv.appendChild(clientDiv);
+        });
+    }
+
+    function populateEditFields(index) {
+        const client = clients[index];
+        document.getElementById('edit-client-name').value = client.name;
+        document.getElementById('edit-client-phone').value = client.phone;
+        document.getElementById('edit-client-relationship').value = client.relationship;
+        document.getElementById('edit-client-notes').value = client.notes;
+
+        document.getElementById('edit-client-name').style.display = 'block';
+        document.getElementById('edit-client-phone').style.display = 'block';
+        document.getElementById('edit-client-relationship').style.display = 'block';
+        document.getElementById('edit-client-notes').style.display = 'block';
+        document.querySelector('button[onclick="updateClient()"]').style.display = 'block';
+    }
+
+    function updateClient() {
+        const selectedClientIndex = document.querySelector('input[name="edit-client"]:checked');
+        
+        if (selectedClientIndex) {
+            const index = selectedClientIndex.value;
+            clients[index] = {
+                name: document.getElementById('edit-client-name').value.trim(),
+                phone: document.getElementById('edit-client-phone').value.trim(),
+                relationship: document.getElementById('edit-client-relationship').value.trim(),
+                notes: document.getElementById('edit-client-notes').value.trim()
+            };
+            alert('Cliente actualizado.');
+            resetEditForm();
+            displayEditClients();
+        } else {
+            alert('Por favor, selecciona un cliente para actualizar.');
+        }
+    }
+
+    function displayDeleteClients() {
+        const deleteClientListDiv = document.getElementById('delete-client-list');
+        deleteClientListDiv.innerHTML = '';
+        clients.forEach((client, index) => {
+            const clientDiv = document.createElement('div');
+            clientDiv.className = 'client';
+            clientDiv.innerHTML = `
+                <input type="checkbox" name="delete-client" value="${index}">
+                <strong>${client.name}</strong> - ${client.phone}
+            `;
+            deleteClientListDiv.appendChild(clientDiv);
+        });
+    }
+
+    function deleteClient() {
+        const checkedBoxes = document.querySelectorAll('input[name="delete-client"]:checked');
+        
+        if (checkedBoxes.length > 0) {
+            const indices = Array.from(checkedBoxes).map(cb => parseInt(cb.value)).sort((a, b) => b - a);
+            indices.forEach(index => {
+                clients.splice(index, 1);
+            });
+            alert('Clientes borrados.');
+            displayDeleteClients();
+        } else {
+            alert('Por favor, selecciona un cliente para borrar.');
+        }
+    }
+
+    function resetForm(section) {
+        if (section === 'register') {
+            document.getElementById('client-name').value = '';
+            document.getElementById('client-phone').value = '';
+            document.getElementById('client-relationship').value = '';
+            document.getElementById('client-notes').value = '';
+        }
+    }
+
+    function resetEditForm() {
+        document.getElementById('edit-client-name').value = '';
+        document.getElementById('edit-client-phone').value = '';
+        document.getElementById('edit-client-relationship').value = '';
+        document.getElementById('edit-client-notes').value = '';
+
+        document.getElementById('edit-client-name').style.display = 'none';
+        document.getElementById('edit-client-phone').style.display = 'none';
+        document.getElementById('edit-client-relationship').style.display = 'none';
+        document.getElementById('edit-client-notes').style.display = 'none';
+        document.querySelector('button[onclick="updateClient()"]').style.display = 'none';
+    }
+
+    window.onload = () => {
+        document.getElementById('login-section').style.display = 'block';
+        document.getElementById('menu-section').style.display = 'none';
+    };
+</script>
+
+</body>
+</html>
